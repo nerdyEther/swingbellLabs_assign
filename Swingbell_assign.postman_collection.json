@@ -1,0 +1,250 @@
+{
+	"info": {
+		"_postman_id": "d7e2cdee-855b-41f4-a12e-e07b99c9ef71",
+		"name": "Swingbell_assign",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38315460"
+	},
+	"item": [
+		{
+			"name": "Read all Patient",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://swingbelllabsassign-production.up.railway.app/fhir/Patient",
+					"protocol": "https",
+					"host": [
+						"swingbelllabsassign-production",
+						"up",
+						"railway",
+						"app"
+					],
+					"path": [
+						"fhir",
+						"Patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Patient",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"resourceType\": \"Patient\",\n  \"name\": [{\n    \"use\": \"official\",\n    \"family\": \"Smith\",\n    \"given\": [\"John\"]\n  }],\n  \"gender\": \"male\",\n  \"telecom\": [{\n    \"system\": \"phone\",\n    \"value\": \"1234567890\",\n    \"use\": \"home\"\n  }],\n  \"address\": [{\n    \"use\": \"home\",\n    \"line\": [\"123 Main St\"],\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"postalCode\": \"10001\"\n  }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://swingbelllabsassign-production.up.railway.app/fhir/Patient",
+					"protocol": "https",
+					"host": [
+						"swingbelllabsassign-production",
+						"up",
+						"railway",
+						"app"
+					],
+					"path": [
+						"fhir",
+						"Patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Patient",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"resourceType\": \"Patient\",\n  \"name\": [{\n    \"use\": \"official\",\n    \"family\": \"Smith\",\n    \"given\": [\"John\"]\n  }],\n  \"gender\": \"male\",\n  \"telecom\": [{\n    \"system\": \"phone\",\n    \"value\": \"1234567890\",\n    \"use\": \"home\"\n  }],\n  \"address\": [{\n    \"use\": \"home\",\n    \"line\": [\"123 Main St\"],\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"postalCode\": \"10001\"\n  }],\n  \"version\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://swingbelllabsassign-production.up.railway.app/fhir/Patient/3ebb7302-e45a-4583-9959-2967c271b109",
+					"protocol": "https",
+					"host": [
+						"swingbelllabsassign-production",
+						"up",
+						"railway",
+						"app"
+					],
+					"path": [
+						"fhir",
+						"Patient",
+						"3ebb7302-e45a-4583-9959-2967c271b109"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Patient",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://swingbelllabsassign-production.up.railway.app/fhir/Patient/3ebb7302-e45a-4583-9959-2967c271b109",
+					"protocol": "https",
+					"host": [
+						"swingbelllabsassign-production",
+						"up",
+						"railway",
+						"app"
+					],
+					"path": [
+						"fhir",
+						"Patient",
+						"3ebb7302-e45a-4583-9959-2967c271b109"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Report",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"resourceType\": \"DiagnosticReport\",\n  \"status\": \"final\",\n  \"code\": {\n    \"coding\": [{\n      \"system\": \"http://loinc.org\",\n      \"code\": \"38269-7\",\n      \"display\": \"DXA BONE DENSITOMETRY\"\n    }],\n    \"text\": \"DXA Bone Densitometry\"\n  },\n  \"subject\": {\n    \"reference\": \"Patient/205a5fb1-b388-459f-82f3-c588cc6c9648\",\n    \"display\": \"John Smith\"\n  },\n  \"effectiveDateTime\": \"2024-03-15\",\n  \"performer\": [{\n    \"display\": \"Dr. Jane Doe\"\n  }],\n  \"result\": [\n    {\n      \"reference\": \"Observation/bmd-001\",\n      \"display\": \"AP Spine\"\n    },\n    {\n      \"reference\": \"Observation/bmd-002\",\n      \"display\": \"Left Femur\"\n    }\n  ],\n  \"contained\": [\n    {\n      \"resourceType\": \"Observation\",\n      \"id\": \"bmd-001\",\n      \"code\": { \"text\": \"AP Spine\" },\n      \"valueQuantity\": {\n        \"value\": -1.2,\n        \"unit\": \"T-score\"\n      },\n      \"interpretation\": { \"text\": \"Osteopenia\" }\n    },\n    {\n      \"resourceType\": \"Observation\",\n      \"id\": \"bmd-002\",\n      \"code\": { \"text\": \"Left Femur\" },\n      \"valueQuantity\": {\n        \"value\": -0.8,\n        \"unit\": \"T-score\"\n      },\n      \"interpretation\": { \"text\": \"Normal\" }\n    }\n  ],\n  \"comment\": \"Patient shows signs of osteopenia in spine.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://swingbelllabsassign-production.up.railway.app/fhir/DiagnosticReport",
+					"protocol": "https",
+					"host": [
+						"swingbelllabsassign-production",
+						"up",
+						"railway",
+						"app"
+					],
+					"path": [
+						"fhir",
+						"DiagnosticReport"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read all  Report",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://swingbelllabsassign-production.up.railway.app/fhir/DiagnosticReport",
+					"protocol": "https",
+					"host": [
+						"swingbelllabsassign-production",
+						"up",
+						"railway",
+						"app"
+					],
+					"path": [
+						"fhir",
+						"DiagnosticReport"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Report",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"resourceType\": \"DiagnosticReport\",\n  \"id\": \"70beec7d-2c3e-403b-a9e0-962606404a45\",\n  \"status\": \"final\",\n  \"subject\": {\n    \"reference\": \"Patient/550e8400-e29b-41d4-a716-446655440000\",\n    \"display\": \"John Smith\"\n  },\n  \"effectiveDateTime\": \"2024-03-15\",\n  \"performer\": [{\n    \"display\": \"Dr. Jane Doe\"\n  }],\n  \"contained\": [\n    {\n      \"resourceType\": \"Observation\",\n      \"id\": \"bmd-001\",\n      \"valueQuantity\": {\n        \"value\": -1.5,\n        \"unit\": \"T-score\"\n      },\n      \"interpretation\": { \"text\": \"Osteopenia\" }\n    },\n    {\n      \"resourceType\": \"Observation\",\n      \"id\": \"bmd-002\",\n      \"valueQuantity\": {\n        \"value\": -0.9,\n        \"unit\": \"T-score\"\n      },\n      \"interpretation\": { \"text\": \"Normal\" }\n    }\n  ],\n  \"comment\": \"Updated interpretation after review.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://swingbelllabsassign-production.up.railway.app/fhir/DiagnosticReport/70beec7d-2c3e-403b-a9e0-962606404a45",
+					"protocol": "https",
+					"host": [
+						"swingbelllabsassign-production",
+						"up",
+						"railway",
+						"app"
+					],
+					"path": [
+						"fhir",
+						"DiagnosticReport",
+						"70beec7d-2c3e-403b-a9e0-962606404a45"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Report",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://swingbelllabsassign-production.up.railway.app/fhir/DiagnosticReport/70beec7d-2c3e-403b-a9e0-962606404a45",
+					"protocol": "https",
+					"host": [
+						"swingbelllabsassign-production",
+						"up",
+						"railway",
+						"app"
+					],
+					"path": [
+						"fhir",
+						"DiagnosticReport",
+						"70beec7d-2c3e-403b-a9e0-962606404a45"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
