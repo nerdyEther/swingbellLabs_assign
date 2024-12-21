@@ -36,3 +36,21 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL
 );
+
+DROP TABLE IF EXISTS diagnostic_reports;
+
+CREATE TABLE medication_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    patient_id UUID NOT NULL,
+    resource_type VARCHAR(50) DEFAULT 'MedicationRequest',
+    status VARCHAR(20) DEFAULT 'active',
+    intent VARCHAR(20) DEFAULT 'order',
+    medication JSONB NOT NULL,
+    authored_on DATE NOT NULL,
+    dosage_instruction JSONB,
+    reason JSONB,
+    dispense_request JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE,
+    CONSTRAINT unique_patient_medication_date UNIQUE (patient_id, authored_on)
+);

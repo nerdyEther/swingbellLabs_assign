@@ -1,0 +1,59 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+*.log
+
+# Logs and environment files
+*.env
+*.env.local
+.env.*
+
+# Build and output directories
+/dist/
+/build/
+/out/
+/*.cache
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE and editor files
+.vscode/
+.idea/
+*.iml
+
+# Client-specific ignores
+client/node_modules/
+client/.next/
+client/.nuxt/
+client/dist/
+client/build/
+client/.cache/
+client/*.env
+client/*.env.local
+
+# Server-specific ignores
+server/node_modules/
+server/target/ # Java Spring Boot build directory
+server/.cache/
+server/logs/
+server/*.log
+server/*.env
+server/*.env.local
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*.bak
+*.backup
+*.lock
+
+# Git-specific files
+*.orig
+
+# Miscellaneous
+coverage/
