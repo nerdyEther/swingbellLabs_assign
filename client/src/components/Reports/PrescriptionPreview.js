@@ -83,7 +83,7 @@ const PrescriptionPreview = ({ isOpen, onClose, prescriptionData }) => {
       const instruction = prescriptionData.dosageInstruction[0];
       
       if (instruction.text) {
-        doc.text('Dosage:', 20, yPos);
+        doc.text('Dosage Instruction:', 20, yPos);
         doc.text(instruction.text, 80, yPos);
         yPos += 8;
       }
