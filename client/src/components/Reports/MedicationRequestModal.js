@@ -1,40 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import PatientSearch from './PatientSearch';
 
-const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
-  const [formData, setFormData] = useState({
-    patientId: '',
-    patientName: '',
-    status: 'active',
-    intent: 'order',
-    medicationCode: '',
-    medicationDisplay: '',
-    authoredOn: new Date().toISOString().split('T')[0],
-    dosageText: '',
-    frequency: '1',
-    period: '1',
-    periodUnit: 'd',
-    when: 'MORN',
-    routeCode: '26643006',
-    routeDisplay: 'Oral Route',
-    doseValue: '1',
-    doseUnit: 'TAB',
-    quantity: '30',
-    reasonCode: '',
-    reasonDisplay: ''
-  });
 
+const getTodayDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+
+
+const initialFormState = {
+  patientId: '',
+  patientName: '',
+  medicationCode: '',
+  medicationDisplay: '',
+  authoredOn: getTodayDate(), // Today's date
+  dosageText: '',
+  frequency: '1',
+  when: 'MORN',
+  routeCode: '26643006',
+  routeDisplay: 'Oral Route',
+  doseValue: '1',
+  doseUnit: 'TAB',
+  quantity: '1',
+  reasonCode: '',
+  reasonDisplay: ''
+};
+
+const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
+  const [formData, setFormData] = useState({...initialFormState});
   const [errors, setErrors] = useState({});
   const isEditMode = !!initialData;
 
-  // Predefined medication options
   const medications = [
     { code: '430127000', display: 'Oral Form Oxycodone' },
     { code: '318272009', display: 'Oral Form Paracetamol' },
     { code: '374350002', display: 'Oral Form Ibuprofen' }
   ];
 
-  // Predefined reason options
   const reasons = [
     { code: '297217002', display: 'Rib Pain' },
     { code: '161891005', display: 'Back Pain' },
@@ -42,19 +48,21 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
   ];
 
   useEffect(() => {
+    if (!isOpen) {
+      setFormData({...initialFormState});
+      setErrors({});
+      return;
+    }
+
     if (isEditMode && initialData) {
       setFormData({
         patientId: initialData.subject.reference.split('/')[1],
         patientName: initialData.subject.display,
-        status: initialData.status || 'active',
-        intent: initialData.intent || 'order',
         medicationCode: initialData.medication?.code?.coding?.[0]?.code || '',
         medicationDisplay: initialData.medication?.code?.coding?.[0]?.display || '',
         authoredOn: initialData.authoredOn,
         dosageText: initialData.dosageInstruction?.[0]?.text || '',
         frequency: initialData.dosageInstruction?.[0]?.timing?.repeat?.frequency || '1',
-        period: initialData.dosageInstruction?.[0]?.timing?.repeat?.period || '1',
-        periodUnit: initialData.dosageInstruction?.[0]?.timing?.repeat?.periodUnit || 'd',
         when: initialData.dosageInstruction?.[0]?.timing?.repeat?.when?.[0] || 'MORN',
         routeCode: initialData.dosageInstruction?.[0]?.route?.coding?.[0]?.code || '26643006',
         routeDisplay: initialData.dosageInstruction?.[0]?.route?.coding?.[0]?.display || 'Oral Route',
@@ -64,8 +72,10 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
         reasonCode: initialData.reason?.[0]?.concept?.coding?.[0]?.code || '',
         reasonDisplay: initialData.reason?.[0]?.concept?.coding?.[0]?.display || ''
       });
+    } else {
+      setFormData({...initialFormState});
     }
-  }, [initialData, isEditMode]);
+  }, [isOpen, initialData, isEditMode]);
 
   const validateField = (field, value) => {
     let error = '';
@@ -94,7 +104,6 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
     setFormData(prev => ({ ...prev, [name]: value }));
     validateField(name, value);
 
-    // Handle medication selection
     if (name === 'medicationCode') {
       const selectedMed = medications.find(med => med.code === value);
       if (selectedMed) {
@@ -106,7 +115,6 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
       }
     }
 
-    // Handle reason selection
     if (name === 'reasonCode') {
       const selectedReason = reasons.find(reason => reason.code === value);
       if (selectedReason) {
@@ -123,7 +131,6 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
     e.preventDefault();
     let isValid = true;
 
-    // Validate all fields
     for (const field in formData) {
       const error = validateField(field, formData[field]);
       if (error) isValid = false;
@@ -132,8 +139,8 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
     if (isValid) {
       const request = {
         resourceType: "MedicationRequest",
-        status: formData.status,
-        intent: formData.intent,
+        status: 'active',
+        intent: 'order',
         medication: {
           code: {
             coding: [{
@@ -147,14 +154,13 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
           reference: `Patient/${formData.patientId}`,
           display: formData.patientName
         },
-        authoredOn: formData.authoredOn,
         dosageInstruction: [{
           text: formData.dosageText,
           timing: {
             repeat: {
               frequency: parseInt(formData.frequency),
-              period: parseInt(formData.period),
-              periodUnit: formData.periodUnit,
+              period: 1,
+              periodUnit: 'd',
               when: [formData.when]
             }
           },
@@ -174,15 +180,6 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
             }
           }]
         }],
-        reason: [{
-          concept: {
-            coding: [{
-              system: "http://snomed.info/sct",
-              code: formData.reasonCode,
-              display: formData.reasonDisplay
-            }]
-          }
-        }],
         dispenseRequest: {
           quantity: {
             value: parseInt(formData.quantity),
@@ -193,13 +190,33 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
         }
       };
 
-      if (isEditMode) {
+      if (!isEditMode) {
+        request.authoredOn = getTodayDate();
+        request.reason = [{
+          concept: {
+            coding: [{
+              system: "http://snomed.info/sct",
+              code: formData.reasonCode,
+              display: formData.reasonDisplay
+            }]
+          }
+        }];
+      } else {
+        
+        request.authoredOn = initialData.authoredOn;
+        request.reason = initialData.reason;
         request.id = initialData.id;
       }
 
       onSubmit(request);
       onClose();
     }
+  };
+
+  const handleClose = () => {
+    setFormData({...initialFormState});
+    setErrors({});
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -223,11 +240,11 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
                 />
               ) : (
                 <PatientSearch 
-                  onSelect={(patient) => setFormData({
-                    ...formData,
+                  onSelect={(patient) => setFormData(prev => ({
+                    ...prev,
                     patientId: patient.id,
                     patientName: `${patient.name[0].family}, ${patient.name[0].given[0]}`
-                  })}
+                  }))}
                 />
               )}
               {errors.patientId && (
@@ -256,34 +273,40 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Status</label>
-              <select
-                required
-                className="w-full p-2 border rounded"
-                value={formData.status}
-                onChange={handleChange}
-                name="status"
-              >
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
-                <option value="stopped">Stopped</option>
-                <option value="on-hold">On Hold</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Prescription Date</label>
-              <input
-                type="date"
-                required
-                className="w-full p-2 border rounded"
-                value={formData.authoredOn}
-                onChange={handleChange}
-                name="authoredOn"
-              />
-            </div>
-          </div>
+         
+          {!isEditMode && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-1">Prescription Date</label>
+                <input
+                  type="date"
+                  required
+                  className="w-full p-2 border rounded bg-gray-100"
+                  value={getTodayDate()}
+                  disabled
+                  name="authoredOn"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Reason</label>
+                <select
+                  required
+                  className="w-full p-2 border rounded"
+                  value={formData.reasonCode}
+                  onChange={handleChange}
+                  name="reasonCode"
+                >
+                  <option value="">Select Reason</option>
+                  {reasons.map(reason => (
+                    <option key={reason.code} value={reason.code}>
+                      {reason.display}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
 
           <div>
             <label className="block text-sm font-medium mb-1">Dosage Instructions</label>
@@ -294,13 +317,13 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
               value={formData.dosageText}
               onChange={handleChange}
               name="dosageText"
-              placeholder="e.g., Take one tablet daily in the morning"
+              placeholder="Write dosage instructions here"
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Frequency</label>
+              <label className="block text-sm font-medium mb-1">Frequency (per day)</label>
               <input
                 type="number"
                 required
@@ -312,19 +335,7 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Period</label>
-              <input
-                type="number"
-                required
-                min="1"
-                className="w-full p-2 border rounded"
-                value={formData.period}
-                onChange={handleChange}
-                name="period"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">When</label>
+              <label className="block text-sm font-medium mb-1">Time of Day</label>
               <select
                 required
                 className="w-full p-2 border rounded"
@@ -332,9 +343,9 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
                 onChange={handleChange}
                 name="when"
               >
-                <option value="MORN">Morning</option>
+                <option value="MORNING">Morning</option>
                 <option value="NOON">Noon</option>
-                <option value="EVE">Evening</option>
+                <option value="EVENING">Evening</option>
                 <option value="NIGHT">Night</option>
               </select>
             </div>
@@ -342,7 +353,7 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Dose Amount</label>
+              <label className="block text-sm font-medium mb-1">Dose Amount (tablets)</label>
               <input
                 type="number"
                 required
@@ -374,28 +385,10 @@ const MedicationRequestModal = ({ isOpen, onClose, onSubmit, initialData = null 
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Reason</label>
-            <select
-              required
-              className="w-full p-2 border rounded"
-              value={formData.reasonCode}
-              onChange={handleChange}
-              name="reasonCode"
-            >
-              <option value="">Select Reason</option>
-              {reasons.map(reason => (
-                <option key={reason.code} value={reason.code}>
-                  {reason.display}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <div className="flex justify-end space-x-2">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
             >
               Cancel

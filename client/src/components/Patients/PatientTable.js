@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import { Edit, Trash, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Edit, Trash, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 const PatientTable = ({ patients, onSearch, searchTerm, onEdit, onDelete }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
-  //  pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = patients.slice(indexOfFirstItem, indexOfLastItem);
-
   const totalPages = Math.ceil(patients.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
@@ -17,21 +15,50 @@ const PatientTable = ({ patients, onSearch, searchTerm, onEdit, onDelete }) => {
   };
 
   const handlePreviousPage = () => {
-    setCurrentPage(currentPage - 1);
+    setCurrentPage(prev => Math.max(prev - 1, 1));
   };
 
   const handleNextPage = () => {
-    setCurrentPage(currentPage + 1);
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  };
+
+ 
+  const getPageNumbers = () => {
+    const delta = 1; 
+    const range = [];
+    const rangeWithDots = [];
+    let l;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 || 
+        i === totalPages || 
+        (i >= currentPage - delta && i <= currentPage + delta)
+      ) {
+        range.push(i);
+      }
+    }
+
+    range.forEach(i => {
+      if (l) {
+        if (i - l === 2) {
+          rangeWithDots.push(l + 1);
+        } else if (i - l !== 1) {
+          rangeWithDots.push('...');
+        }
+      }
+      rangeWithDots.push(i);
+      l = i;
+    });
+
+    return rangeWithDots;
   };
 
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-4 border-b">
         <div className="relative">
-          <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <input
             type="text"
             placeholder="Search patients..."
@@ -86,36 +113,42 @@ const PatientTable = ({ patients, onSearch, searchTerm, onEdit, onDelete }) => {
         </table>
       </div>
 
-      <div className="flex justify-between items-center p-4">
-        <div className="btn-group">
+     
+      <div className="flex items-center justify-between px-6 py-3 border-t">
+    
+        
+        <div className="flex items-center space-x-1">
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 1}
-            className="px-4 py-2 border rounded-l-md bg-white text-gray-600 hover:bg-gray-100"
+            className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-white"
           >
-            <ChevronLeft size={18} />
+            <ChevronLeft size={20} className="text-gray-600" />
           </button>
-          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => currentPage - 2 + i + 1)
-            .filter(page => page > 0 && page <= totalPages)
-            .map((pageNumber) => (
-              <button
-                key={pageNumber}
-                onClick={() => handlePageChange(pageNumber)}
-                className={`px-4 py-2 border ${
-                  pageNumber === currentPage
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                {pageNumber}
-              </button>
-            ))}
+
+          {getPageNumbers().map((pageNumber, index) => (
+            <button
+              key={index}
+              onClick={() => typeof pageNumber === 'number' && handlePageChange(pageNumber)}
+              className={`min-w-[32px] h-8 px-2 rounded-full ${
+                pageNumber === currentPage
+                  ? 'bg-blue-500 text-white'
+                  : typeof pageNumber === 'number'
+                  ? 'hover:bg-gray-100 text-gray-700'
+                  : 'text-gray-400'
+              } ${typeof pageNumber !== 'number' ? 'cursor-default' : ''}`}
+              disabled={typeof pageNumber !== 'number'}
+            >
+              {pageNumber}
+            </button>
+          ))}
+
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 border rounded-r-md bg-white text-gray-600 hover:bg-gray-100"
+            className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-white"
           >
-            <ChevronRight size={18} />
+            <ChevronRight size={20} className="text-gray-600" />
           </button>
         </div>
       </div>

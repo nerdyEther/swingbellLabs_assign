@@ -2,21 +2,7 @@ const express = require('express');
 const router = express.Router();
 const MedicationRequest = require('../models/MedicationRequest');
 
-// Add a test endpoint
-router.get('/test', (req, res) => {
-  res.json({ message: 'MedicationRequests router is working' });
-});
 
-// Add debugging middleware
-router.use((req, res, next) => {
-  console.log('[MedicationRequests Route]:', {
-    method: req.method,
-    path: req.path,
-    query: req.query,
-    body: req.body
-  });
-  next();
-});
 
 
 router.use((req, res, next) => {

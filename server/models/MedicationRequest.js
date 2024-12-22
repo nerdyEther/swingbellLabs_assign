@@ -49,7 +49,7 @@ const createRequest = async (requestData) => {
     
     const patientId = requestData.subject.reference.split('/')[1];
     
-    // Check if patient exists
+//existence check
     const patientCheck = await client.query(
       'SELECT id FROM patients WHERE id = $1',
       [patientId]
@@ -59,7 +59,7 @@ const createRequest = async (requestData) => {
       throw new Error('Patient not found');
     }
 
-    // Check for duplicate
+  //duplicate check
     const duplicateCheck = await client.query(
       'SELECT id FROM medication_requests WHERE patient_id = $1 AND authored_on::date = $2::date',
       [patientId, new Date(requestData.authoredOn)]
@@ -69,7 +69,7 @@ const createRequest = async (requestData) => {
       throw new Error('A medication request already exists for this patient on this date');
     }
 
-    // Insert request
+//insert req
     const insertQuery = `
       INSERT INTO medication_requests (
         patient_id,

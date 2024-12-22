@@ -40,7 +40,7 @@ const App = () => {
           </Route>
         </Route>
 
-        {/* Catch-all redirect */}
+        
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
